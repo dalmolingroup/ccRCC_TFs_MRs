@@ -1,0 +1,22 @@
+# dados e resultados (não versionados; ver README)
+0_data/
+data/*
+!data/gdc_manifest_TCGA-KIRC.txt
+!data/README.md
+results_*/
+Figures/
+*.RData
+*.rds
+*.rda
+*.tsv.gz
+*.tar.gz
+# arquivos automáticos
+.Rhistory
+.RData
+.Rproj.user/
+.ipynb_checkpoints/
+__pycache__/
+*.pyc
+.DS_Store
+Rplots.pdf
+omnipathr-log/

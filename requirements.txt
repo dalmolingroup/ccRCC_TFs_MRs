@@ -1,0 +1,9 @@
+numpy
+pandas
+scipy
+matplotlib
+scikit-learn==1.5.2
+Boruta==0.4.3
+imbalanced-learn==0.14.2
+statsmodels==0.14.6
+jupyter
