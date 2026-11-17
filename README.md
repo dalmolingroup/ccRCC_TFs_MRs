@@ -1,10 +1,10 @@
 # Transcriptional master regulators associated with metastatic ccRCC
 
-Code for the manuscript **"[manuscript title]"** (Farias *et al.*, submitted to *Computational and Structural Biotechnology Journal*, CSBJ-D-26-01039, revised version).
+Code for the manuscript **"Cross-Cohort Network Analysis Identifies Transcription Factor Master Regulators of Aggressiveness and Survival in Clear Cell Renal Cell Carcinoma"** (Farias *et al.*, submitted to *Computational and Structural Biotechnology Journal*, CSBJ-D-26-01039, revised version).
 
 The workflow infers a gene regulatory network (GRN) for clear cell renal cell carcinoma (ccRCC) from TCGA-KIRC, identifies transcription factors (TFs) acting as master regulators (MRs) of a tumour–normal signature derived from paired ICGC-RECA samples, selects with Boruta/Random Forest a signature of 14 MRs associated with metastasis at diagnosis, groups them into two regulon clusters (proliferative and differentiation-associated) and characterises these clusters by regulon activity, expression, functional enrichment, external validation of regulon targets, clinicopathological associations, survival, VHL status and tumour composition.
 
-An archived snapshot of this repository is available on Zenodo: [DOI].
+An archived snapshot of this repository is available on Zenodo: 10.5281/zenodo.24316449 .
 
 ---
 
@@ -65,7 +65,7 @@ Input data are not redistributed in this repository.
 
 - **TCGA-KIRC**: RNA-seq (STAR counts), clinical and somatic mutation data from the NCI Genomic Data Commons (data release 40.0), downloaded with TCGAbiolinks. The file list is given in `data/gdc_manifest_TCGA-KIRC.txt`.
 - **TCGA Pan-Cancer Clinical Data Resource** (Liu *et al.*, *Cell* 2018; Table S1, sheet "TCGA-CDR") for survival endpoints: `0_data/TCGA-CDR-SupplementalTableS1.xlsx`.
-- **ICGC RECA-EU** (release 28): `exp_seq.RECA-EU.tsv.gz` and `donor.RECA-EU.tsv.gz` [current download location].
+- **ICGC RECA-EU** (release 28): `exp_seq.RECA-EU.tsv.gz` and `donor.RECA-EU.tsv.gz`.
 - **Tumour purity and immune deconvolution**: ESTIMATE, quanTIseq and CIBERSORT (LM22, 1,000 permutations) estimates computed with IOBR (v2.2.4) from TCGA-KIRC STAR counts (UCSC Xena) converted to TPM, saved as `0_data/10_tme_combine.rds`.
 - **External regulatory evidence**: ChIP-Atlas target genes (hg38, TSS ± 5 kb; downloaded by script 16) and DoRothEA (confidence levels A–C; R package `dorothea`).
 
@@ -88,4 +88,4 @@ MIT (see `LICENSE`).
 
 ## Citation
 
-If you use this code, please cite the article [reference/DOI] and the Zenodo archive [DOI].
+If you use this code, please cite the article [reference/DOI] and the Zenodo archive 10.5281/zenodo.24316449.
