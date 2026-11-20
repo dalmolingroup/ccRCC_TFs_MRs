@@ -143,19 +143,19 @@ cdr <- read_excel(CDR_FILE, sheet = "TCGA-CDR", na = c("", "NA", "#N/A", "[Not A
 
 df <- meta |> inner_join(act, by = "patient") |> left_join(cdr, by = "patient") |>
   mutate(VHL = factor(case_when(patient %in% vhl_mut ~ "Mutated",
-                                patient %in% sequenced ~ "Wild-type",
-                                TRUE ~ NA_character_), levels = c("Wild-type", "Mutated")))
+                                patient %in% sequenced ~ "Mutation-negative",
+                                TRUE ~ NA_character_), levels = c("Mutation-negative", "Mutated")))
 
 counts <- df |> count(VHL, M) |> pivot_wider(names_from = M, values_from = n, values_fill = 0)
 cat("\nPacientes da coorte por status do VHL e M:\n"); print(counts)
 write.csv(counts, file.path(OUT_DIR, "contagens_VHL_M.csv"), row.names = FALSE)
 dv <- filter(df, !is.na(VHL))
-wt <- filter(dv, VHL == "Wild-type")
+wt <- filter(dv, VHL == "Mutation-negative")
 write.csv(dv, file.path(OUT_DIR, "dados_VHL_por_paciente.csv"), row.names = FALSE)
 
 ALL <- list()
 for (clv in CLUSTER_VARS) {
-  dv$score <- dv[[clv]]; wt <- filter(dv, VHL == "Wild-type")
+  dv$score <- dv[[clv]]; wt <- filter(dv, VHL == "Mutation-negative")
   ## ---------------------------------------------------------------- 4. testes de atividade
   cliff <- function(x, y) unname(2 * suppressWarnings(wilcox.test(x, y, exact = FALSE))$statistic /
                                    (length(x) * length(y)) - 1)
@@ -166,7 +166,7 @@ for (clv in CLUSTER_VARS) {
       group2 = gy, n2 = length(y), median2 = median(y), cliffs_delta = cliff(x, y),
       p = suppressWarnings(wilcox.test(x, y, exact = FALSE))$p.value)
   }
-  add_test("VHL (all patients)", dv$score[dv$VHL == "Mutated"], dv$score[dv$VHL == "Wild-type"], "Mutated", "Wild-type")
+  add_test("VHL (all patients)", dv$score[dv$VHL == "Mutated"], dv$score[dv$VHL == "Mutation-negative"], "Mutated", "Mutation-negative")
   for (s in levels(dv$VHL)) {
     d <- filter(dv, VHL == s, M %in% c("M0", "M1"))
     add_test(paste0("M1 vs M0 (VHL ", s, ")"), d$score[d$M == "M1"], d$score[d$M == "M0"], "M1", "M0")
@@ -228,11 +228,11 @@ for (clv in CLUSTER_VARS) {
   
   bx <- bind_rows(
     dv |> transmute(panel = "By VHL status (all patients)", group = as.character(VHL), score),
-    wt |> filter(M %in% c("M0", "M1")) |> transmute(panel = "VHL wild-type: by metastatic status", group = M, score)
-  ) |> mutate(group = factor(group, levels = c("Wild-type", "Mutated", "M0", "M1")))
-  ann <- data.frame(panel = c("By VHL status (all patients)", "VHL wild-type: by metastatic status"),
+    wt |> filter(M %in% c("M0", "M1")) |> transmute(panel = "VHL mutation-negative: by metastatic status", group = M, score)
+  ) |> mutate(group = factor(group, levels = c("Mutation-negative", "Mutated", "M0", "M1")))
+  ann <- data.frame(panel = c("By VHL status (all patients)", "VHL mutation-negative: by metastatic status"),
                     label = c(sprintf("Cliff's delta = %.2f, %s", act_tab$cliffs_delta[1], fmt_p(act_tab$p[1])),
-                              with(act_tab[act_tab$comparison == "M1 vs M0 (VHL Wild-type)", ],
+                              with(act_tab[act_tab$comparison == "M1 vs M0 (VHL Mutation-negative)", ],
                                    sprintf("Cliff's delta = %.2f, %s", cliffs_delta, fmt_p(p)))))
   ns <- bx |> count(panel, group)
   g1 <- ggplot(bx, aes(group, score)) +
@@ -241,7 +241,7 @@ for (clv in CLUSTER_VARS) {
     geom_text(data = ns, aes(group, -Inf, label = paste0("n = ", n)), vjust = -0.6, size = 2.6, color = INK2) +
     geom_text(data = ann, aes(x = -Inf, y = Inf, label = label), hjust = -0.05, vjust = 1.5,
               size = 2.8, color = INK2, inherit.aes = FALSE) +
-    scale_fill_manual(values = c("Wild-type" = "#86b6ef", "Mutated" = "#1c5cab", M0 = "#2166ac", M1 = "#d73027"),
+    scale_fill_manual(values = c("Mutation-negative" = "#86b6ef", "Mutated" = "#1c5cab", M0 = "#2166ac", M1 = "#d73027"),
                       guide = "none") +
     facet_wrap(~panel, scales = "free_x") +
     scale_y_continuous(expand = expansion(mult = c(0.12, 0.15))) +
@@ -257,7 +257,7 @@ for (clv in CLUSTER_VARS) {
       left_join(inter_tab |> select(cohort, endpoint, p_interaction), by = c("cohort", "endpoint")) |>
       mutate(cohort = recode(cohort, all = "All patients", M0_only = "M0 only"),
              endpoint = factor(endpoint, levels = ENDPOINTS),
-             subgroup = factor(subgroup, levels = c("Mutated", "Wild-type")),
+             subgroup = factor(subgroup, levels = c("Mutated", "Mutation-negative")),
              lab = sprintf("%s (n = %d; %d events)", subgroup, n, events))
     pint <- fp |> distinct(cohort, endpoint, p_interaction) |>
       mutate(txt = paste0("P interaction = ", sprintf("%.2f", p_interaction)))
@@ -268,7 +268,7 @@ for (clv in CLUSTER_VARS) {
       geom_text(data = pint, aes(x = -Inf, y = Inf, label = txt), hjust = -0.05, vjust = 1.2,
                 size = 2.5, color = INK2, inherit.aes = FALSE) +
       scale_x_log10() +
-      scale_color_manual(values = c("Wild-type" = BLUE, "Mutated" = ORANGE), guide = "none") +
+      scale_color_manual(values = c("Mutation-negative" = BLUE, "Mutated" = ORANGE), guide = "none") +
       facet_grid(cohort ~ endpoint) +
       labs(x = paste("Hazard ratio per SD of", tolower(CLUSTER_LABEL[[clv]]), "activity (log scale)"), y = NULL,
            caption = "Multivariable Cox models adjusted for age, sex, stage and grade, fitted within each VHL subgroup.") +

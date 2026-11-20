@@ -11,7 +11,7 @@
 #       após  df <- act |> inner_join(clin, ...) |> left_join(meta, ...):
 #       write.csv(df, file.path(OUT_DIR, "dados_sobrevivencia.csv"), row.names = FALSE)
 #   VHL_influence.R           -> results_vhl/
-#       após  wt <- filter(dv, VHL == "Wild-type")   (linha ~153):
+#       após  wt <- filter(dv, VHL == "Mutation-negative")   (linha ~153):
 #       write.csv(dv, file.path(OUT_DIR, "dados_VHL_por_paciente.csv"), row.names = FALSE)
 #   tumor_purity_and_deconvolution.R -> results_purity_deconv/   (sem mudança)
 #   survival_ICGC.R (versão com os dois clusters) -> results_survival_ICGC/
@@ -271,21 +271,21 @@ if (!is.null(vt$act)) {
       scale_y_continuous(expand = expansion(mult = c(0.05, 0.2))) +
       facet_wrap(~ cl_lab, scales = "free_y", labeller = label_wrap_gen(22)) + labs(x = NULL, y = "Cluster activity (mean dES)") + th
     nV <- table(vpt$VHL)
-    panels$A <- box(lv |> mutate(VHL = factor(VHL, c("Wild-type", "Mutated"))), "VHL", lab_d("VHL (all patients)"),
-                    c("Wild-type" = "#86b6ef", Mutated = "#1c5cab")) +
+    panels$A <- box(lv |> mutate(VHL = factor(VHL, c("Mutation-negative", "Mutated"))), "VHL", lab_d("VHL (all patients)"),
+                    c("Mutation-negative" = "#86b6ef", Mutated = "#1c5cab")) +
       scale_x_discrete(labels = function(x) sprintf("%s\n(n = %d)", x, as.integer(nV[x])))
-    lw <- lv |> filter(VHL == "Wild-type", M %in% c("M0", "M1"))
+    lw <- lv |> filter(VHL == "Mutation-negative", M %in% c("M0", "M1"))
     nM <- table(lw$M[lw$cl == "Cluster_1"])
-    panels$B <- box(lw, "M", lab_d("M1 vs M0 (VHL Wild-type)"), c(M0 = "#2166ac", M1 = "#d73027")) +
+    panels$B <- box(lw, "M", lab_d("M1 vs M0 (VHL Mutation-negative)"), c(M0 = "#2166ac", M1 = "#d73027")) +
       scale_x_discrete(labels = function(x) sprintf("%s\n(n = %d)", x, as.integer(nM[x]))) +
-      labs(subtitle = "VHL wild-type tumours")
+      labs(subtitle = "VHL mutation-negative tumours")
   }
   if (!is.null(vt$cox)) {
     fv <- vt$cox |> left_join(vt$int[, c("cl", "cohort", "endpoint", "p_interaction")], by = c("cl", "cohort", "endpoint")) |>
       mutate(cl_lab = factor(Cluster, CL_LAB), endpoint = factor(endpoint, ENDPOINTS),
              cohort = recode(cohort, all = "All", M0_only = "M0"),
              row = factor(paste(endpoint, cohort), rev(paste(rep(ENDPOINTS, each = 2), c("All", "M0")))),
-             subgroup = factor(subgroup, c("Wild-type", "Mutated")))
+             subgroup = factor(subgroup, c("Mutation-negative", "Mutated")))
     pint <- fv |> distinct(cl_lab, row, p_interaction) |> mutate(txt = paste0("p int = ", sprintf("%.2f", p_interaction)))
     panels$C <- ggplot(fv, aes(HR, row, color = subgroup)) +
       geom_vline(xintercept = 1, linetype = "dashed", color = "grey60", linewidth = 0.3) +
@@ -294,7 +294,7 @@ if (!is.null(vt$act)) {
       geom_text(data = pint, aes(x = Inf, y = row, label = txt), hjust = 1.05, size = 1.9, color = INK2,
                 inherit.aes = FALSE) +
       scale_x_log10(expand = expansion(mult = c(0.05, 0.45))) +
-      scale_color_manual(values = c("Wild-type" = "#2a78d6", Mutated = "#eb6834"), name = "VHL") +
+      scale_color_manual(values = c("Mutation-negative" = "#2a78d6", Mutated = "#eb6834"), name = "VHL") +
       facet_wrap(~ cl_lab) + labs(x = "HR per SD (log scale), adjusted for age, sex, stage and grade", y = NULL) +
       th + theme(legend.position = "bottom", panel.grid.major.y = element_blank())
   }

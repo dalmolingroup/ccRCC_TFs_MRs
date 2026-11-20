@@ -31,33 +31,44 @@ Scripts are numbered in the order in which they should be run. All R scripts ass
 | 01 | `R/01_data/01_datasets_construction.R` | TCGA-KIRC counts and clinical data; ICGC-RECA counts and donor data (`0_data/*.RData`) | Methods 2.1 |
 | 02 | `R/01_data/02_transcription_factor_list.R` | TF list (AnimalTFDB 4.0) | Methods 2.2 |
 | 03 | `R/02_network_MRA/03_rtn_network.R` | RTN network (`rtni_TF.RData`) | Methods 2.2; Results 3.1 |
+| 03b | `R/02_network_MRA/03b_rtn_network_train_only.R` (HPC: `03b_run_trainnet.sh`, Singularity) | sensitivity analysis: network and MRA inferred on the 350 training tumours only; candidate matrix `0_data/trainnet/expr_MR_KIRC_trainnet.csv`. Requires `0_data/split_train_ids.csv` (step 06a) | Methods 2.3; Table S26 |
 | 04a–c | `R/02_network_MRA/04a_de_deseq2.R`, `04b_de_edger.R`, `04c_de_limma.R` | paired tumour–normal DE in ICGC-RECA | Methods 2.2 |
 | 04d | `R/02_network_MRA/04d_upset_de_FigS2.R` | intersection of DE genes | Fig. S2 |
 | 05 | `R/02_network_MRA/05_master_regulator_analysis.R` | MRA (`MRA.RData`, 356 MRs); input matrices for the ML step (`expr_MR_KIRC_full.csv`, `metadata_KIRC_full.csv`, `expr_all_regulators_voom_KIRC.csv`) | Results 3.1; Table S2 |
+| 06a | `python/03_machine_learning/export_split_ids.py` | train/test IDs of the main split (`0_data/split_train_ids.csv`, `split_test_ids.csv`); needed by 03b | Methods 2.3 |
+| 06b | `R/01_data/06b_make_ICGC_external_RT91.R` | ICGC-RECA input for the locked-signature evaluation: 91 primary tumours (voom) and metadata (`expr_MR_ICGC_RT91.csv`, `metadata_ICGC_RT91.csv`) | Methods 2.3 |
 | 06 | `python/03_machine_learning/ml_pipeline_revision.py` | split, Boruta signature, test-set evaluation, nested CV, stability, ICGC evaluation (`results_ml_revision/`). Run `python ml_pipeline_revision.py`, then `python ml_pipeline_revision.py baselines` | Methods 2.3; Results 3.2 |
-| 07 | `python/03_machine_learning/clinical_baseline.ipynb` | clinical model, combined model, multivariable logistic regression | Results 3.2 |
+| 07 | `python/03_machine_learning/clinical_baseline.ipynb` | clinical model and combined model | Results 3.2; Table S4 |
+| 07b | `python/03_machine_learning/clinical_multivariable_oof.py` | multivariable logistic regression with the nested-CV out-of-fold signature score (OR per SD, likelihood-ratio test) | Methods 2.3; Results 3.2; Table S4 |
+| 07c | `python/03_machine_learning/ml_pipeline_trainnet.py` | sensitivity analysis: Boruta/RF with the training-only network candidates, same test set (`results_ml_trainnet/`; only the hold-out result is used) | Table S26 |
+| 07d | `R/02_network_MRA/03c_TableS26_trainnet.R` | Table S26 (MR overlap, MRA of the 14 TFs, selected features, hold-out metrics) | Table S26 |
 | 08 | `python/03_machine_learning/plots_ml_revision.py` | Figure 3; `python plots_ml_revision.py compare` for Fig. S4 | Fig. 3, Fig. S4 |
 | 09 | `python/03_machine_learning/make_supp_tables_ml.py` | split/fold and baseline tables | Tables S3, S4 |
-| 10 | `R/04_activity_clusters/10_regulon_activity_graphs_Fig2_Fig4_FigS3.R` | network graphs (`tni.graph`), association map of the 14 regulons (clusters), regulon activity heatmap | Fig. 2, Fig. 4A–B, Fig. S3 |
+| 10 | `R/04_activity_clusters/10_regulon_activity_graphs_Fig2_Fig4_FigS3.R` | network graphs (`tni.graph`), association map of the 14 regulons (clusters), regulon activity heatmap (501 tumours, one per patient) | Fig. 2, Fig. 4A–B, Fig. S3 |
 | 11 | `R/04_activity_clusters/11_activity_vs_clinical_Fig4C.R` | cluster activity vs metastasis, grade, pT and stage | Fig. 4C; Table S16 |
-| 12 | `R/04_activity_clusters/12_FigS5_ICGC_activity.R` | regulon activity in ICGC-RECA, adjusted Rand index | Fig. S5 |
+| 11b | `R/04_activity_clusters/11b_activity_vs_M_ICGC.R` | cluster activity vs metastatic status in ICGC-RECA (91 tumours), alongside TCGA-KIRC: Cliff's δ, OR per SD (Wald and Firth). Run after 11 and 21 | Results 3.3; Table S28 |
+| 12 | `R/04_activity_clusters/12_FigS5_ICGC_activity.R` | activity-based clustering of the 14 TFs in TCGA-KIRC (501) and ICGC-RECA (91), ARI and sensitivity, M1 vs M0 in ICGC. Run after 21 | Fig. S5; Table S27 |
 | 13 | `R/04_activity_clusters/13_FigS6_GSEA2.R` | two-tailed GSEA of the 14 regulons | Fig. S6 |
+| 13b | `R/04_activity_clusters/13b_proliferation_FigS10_TabS29.R` | cluster scores vs Hallmark E2F/G2M proliferation score; metastasis and Cox models adjusted for proliferation; exclusion of regulators. Run after 18 | Results 3.4; Fig. S10; Table S29 |
 | 14 | `R/05_expression/14_expression_Fig5AB_TabS6.R` | expression tumour vs normal (paired) and M1 vs M0 | Fig. 5A–B; Table S6 |
 | 15 | `R/05_expression/15_Fig5C_concordance.R` | concordance of M1 vs M0 effects, TCGA vs ICGC | Fig. 5C |
+| 15b | `R/05_expression/15b_Figure5_layout.R` | final Figure 5 at journal size (7 in, two columns; PDF vector + 600-dpi TIFF), assembled from `fig5_data.rds` (script 14) and the concordance table (script 15) | Fig. 5 |
 | 16 | `R/06_enrichment_validation/16_enrichment_and_regulon_validation.R` | ORA per regulon and per cluster/sign (network background); CollecTRI/DoRothEA and ChIP-Atlas overlap | Methods 2.6–2.7 |
 | 17 | `R/06_enrichment_validation/17_Fig6_TabS7-S12.R` | Figure 6 and enrichment/validation tables | Fig. 6; Tables S7–S12 |
-| 18 | `R/07_survival_clinical/18_survival_cox_TCGA.R` | multivariable Cox models (OS, PFI, DSS; all and M0 patients) | Methods 2.8 |
-| 19 | `R/07_survival_clinical/19_VHL_subgroups.R` | VHL-mutant vs wild-type analyses | Methods 2.8 |
+| 18 | `R/07_survival_clinical/18_survival_cox_TCGA.R` | multivariable Cox models (OS, PFI, DSS; all and M0 patients); BH adjustment of the primary family of 12 cluster-level tests | Methods 2.8; Table S13 |
+| 19 | `R/07_survival_clinical/19_VHL_subgroups.R` | VHL-mutated vs VHL mutation-negative analyses | Methods 2.8 |
 | 20 | `R/07_survival_clinical/20_purity_deconvolution.R` | correlations with purity and immune fractions; adjusted models | Methods 2.9 |
-| 21 | `R/07_survival_clinical/21_survival_ICGC.R` | exploratory OS analysis in ICGC-RECA | Methods 2.8 |
+| 21 | `R/07_survival_clinical/21_survival_ICGC.R` | regulon activity of the 91 ICGC-RECA primary tumours (`0_data/dES_ICGC_RT91.csv`, single source for scripts 11b and 12) and exploratory OS analysis | Methods 2.4, 2.8; Table S25 |
 | 22 | `R/07_survival_clinical/22_Fig7_FigS7-S9_TabS13-S25.R` | Figure 7, Kaplan–Meier, VHL and purity figures, survival/clinical tables | Fig. 7; Figs. S7–S9; Tables S13–S25 |
 | 23 | `R/08_tables_flowchart/23_Table1.R` | clinical characteristics | Table 1 |
 | 24 | `R/08_tables_flowchart/24_Table2.R` | summary of the 14 signature TFs | Table 2 |
 | 25 | `R/08_tables_flowchart/25_FigS1_flowchart.R` | patient flowchart | Fig. S1 |
 
-Scripts 18–21 can be run in any order; script 22 must be run after them. Before running script 22, the per-patient data files must exist (`dados_por_paciente.csv`, `dados_sobrevivencia.csv`, `dados_VHL_por_paciente.csv`), which are written by scripts 11, 18 and 19.
+Scripts 18–21 can be run in any order; script 22 must be run after them. Script 21 must be run before 11b and 12 (it creates the ICGC-RECA activity matrix). The sensitivity analysis of Table S26 runs as 06a → 03b → 07c → 07d.
 
-**Figures not generated by code.** Figure 1 was drawn with BioRender. The network layouts of Figure 2 and Fig. S3 were rendered interactively in RedeR from the graph objects created by script 10 (`rtn_graph_Boruta_sign.RData`). The panels of Figure 5 were combined with `cowplot`.
+**ICGC-RECA samples.** Tumour–normal comparisons use the 45 donors with matched tumour and adjacent normal RNA-seq; all other ICGC-RECA analyses (regulon activity, locked-signature evaluation, cluster activity vs metastasis, survival) use the 91 primary tumours (one per donor), with adjacent normal samples excluded. Before running script 22, the per-patient data files must exist (`dados_por_paciente.csv`, `dados_sobrevivencia.csv`, `dados_VHL_por_paciente.csv`), which are written by scripts 11, 18 and 19.
+
+**Figures not generated by code.** Figure 1 was drawn with BioRender. The network layouts of Figure 2 and Fig. S3 were rendered interactively in RedeR from the graph objects created by script 10 (`rtn_graph_Boruta_sign.RData`). The panels of Figure 5 are assembled by script 15b (`patchwork`).
 
 ## Input data
 
@@ -79,7 +90,7 @@ The exact package versions of the R session are listed in `sessionInfo.txt`.
 ## Reproducibility
 
 - Random seeds are fixed in all stochastic steps (`SEED = 2026` in the machine-learning workflow; `set.seed(2026)` in R scripts with permutations or resampling).
-- The train/test split, the selected features, the selection frequencies across resamplings and nested-CV folds, and all predictions are written to `results_ml_revision/`.
+- The train/test split, the selected features, the selection frequencies across 100 resamplings (`N_STABILITY = 100`) and nested-CV folds, and all predictions are written to `results_ml_revision/`.
 - The regulon membership of the 14 signature TFs, with the mode of regulation of each target, is provided as Supplementary Table S12.
 
 ## License

@@ -234,6 +234,14 @@ cox$FDR[tf_rows] <- ave(cox$p[tf_rows], cox$cohort[tf_rows], cox$endpoint[tf_row
                         FUN = function(p) p.adjust(p, "BH"))
 write.csv(cox, file.path(OUT_DIR, "cox_resultados.csv"), row.names = FALSE)
 
+# família primária de multiplicidade (revisão R2, comentário 5): os 12 testes dos escores dos clusters
+# no modelo multivariável (2 clusters x 3 desfechos x 2 grupos de pacientes), BH -> Supplementary Table S13
+prim <- subset(cox, model == "multivariable" & variable %in% CLUSTER_VARS)
+stopifnot(nrow(prim) == 12)
+prim$q_BH_primary_family <- p.adjust(prim$p, method = "BH")
+write.csv(prim, file.path(OUT_DIR, "cox_clusters_familia_primaria_BH.csv"), row.names = FALSE)
+print(prim[, c("label", "cohort", "endpoint", "HR", "CI_low", "CI_high", "p", "q_BH_primary_family")], row.names = FALSE)
+
 # modelo completo do escore de cada cluster (todas as covariáveis), para tabela do texto
 full_tab <- list()
 for (cv in CLUSTER_VARS) for (coh in names(cohorts)) for (e in ENDPOINTS) {

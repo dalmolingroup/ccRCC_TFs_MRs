@@ -190,6 +190,12 @@ stats_m <- bind_rows(stats_m) |> group_by(cohort) |>
 write.csv(stats_tn, file.path(pe(OUT_DIR), "SuppTable_expression_tumor_vs_normal.csv"), row.names = FALSE)
 write.csv(stats_m,  file.path(pe(OUT_DIR), "SuppTable_expression_M1_vs_M0.csv"), row.names = FALSE)
 
+# dados da figura para a montagem final no formato da revista (15b_Figure5_layout.R)
+saveRDS(list(plot_tn = bind_rows(plot_tn), plot_m = bind_rows(plot_m), stats_tn = stats_tn, stats_m = stats_m,
+             counts = counts, gene_order = gene_order, cluster_of = cluster_of,
+             CLUSTER_COLORS = CLUSTER_COLORS, GROUP_COLORS = GROUP_COLORS),
+        file.path(pe(OUT_DIR), "fig5_data.rds"))
+
 ## ---------------------------------------------------------------- figuras
 cohort_lab <- function(co, kind) {
   k <- counts[[co]]

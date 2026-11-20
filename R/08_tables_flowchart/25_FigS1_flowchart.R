@@ -37,7 +37,7 @@ boxes <- rbind(
   B("s3", 7.0, 5.8, 2.4, 1.0, sprintf("Nested cross-validation\n5 outer folds, n = %s", f(N$analysed)), "split"),
   B("u1", 1.15, 3.7, 2.1, 1.3, sprintf("Clinical comparison\n(grade, pT, age)\nn = %s", f(N$clinical)), "use"),
   B("u2", 3.45, 3.7, 2.1, 1.3, sprintf("Survival (TCGA-CDR)\nOS, PFI, DSS\nn = %s-%s", f(N$surv_min), f(N$surv_max)), "use"),
-  B("u3", 5.75, 3.7, 2.1, 1.3, sprintf("VHL subgroups\nn = %s (%s mutated,\n%s wild-type)", f(N$vhl), f(N$vhl_mut), f(N$vhl_wt)), "use"),
+  B("u3", 5.75, 3.7, 2.1, 1.3, sprintf("VHL subgroups\nn = %s (%s mutated,\n%s mutation-negative)", f(N$vhl), f(N$vhl_mut), f(N$vhl_wt)), "use"),
   B("u4", 8.05, 3.7, 2.1, 1.3, sprintf("Purity and immune\ndeconvolution\nn = %s", f(N$deconv)), "use"),
   B("i1", 11.6, 13.0, 3.4, 1.3, sprintf("ICGC RECA-EU (ccRCC)\n%s primary tumours\n%s matched normal samples", f(N$icgc), f(N$icgc_normal)), "icgc"),
   B("i2", 11.6, 10.7, 3.4, 1.3, sprintf("Tumour-normal differential\nexpression (%s pairs):\nsignature for MRA", f(N$icgc_normal)), "icgc"),

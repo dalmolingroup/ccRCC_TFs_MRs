@@ -51,7 +51,7 @@ BORUTA_MAX_ITER = 100
 N_BOOT = 2000                   # bootstrap para IC 95%
 N_OUTER = 5                     # folds externos do nested CV
 MAKE_PLOTS = True               # gera as figuras em OUT_DIR/figuras (plots_ml_revision.py)
-N_STABILITY = 20                # reamostragens para estabilidade do Boruta (lento: aumente se der tempo)
+N_STABILITY = 100               # reamostragens para estabilidade do Boruta (valor usado no artigo, Fig. 3D)
 
 os.makedirs(OUT_DIR, exist_ok=True)
 
@@ -320,8 +320,8 @@ def fixed_signature(X, y, strata, feats, label="original_11"):
 
 
 # ---------------------------------------------------------------- validação externa (ICGC)
-EXT_EXPR = "0_data/expr_MR_ICGC_full.csv"    # amostras x genes (mesmos IDs do TCGA)
-EXT_META = "0_data/metadata_ICGC_full.csv"
+EXT_EXPR = "0_data/expr_MR_ICGC_RT91.csv"    # 91 tumores RT x genes (mesmos IDs do TCGA); R/01_data/06b_make_ICGC_external_RT91.R
+EXT_META = "0_data/metadata_ICGC_RT91.csv"   # gerado pelo mesmo script 06b
 EXT_M_COL = "pathologic_m"
 N_PERM = 5000
 
@@ -339,6 +339,11 @@ def external_validation(X_tcga, y_tcga, feats):
         Xe = Xe.T
     if not set(feats) & set(Xe.columns):
         raise ValueError(f"Nenhuma feature encontrada em {EXT_EXPR}: confira se os IDs (ENSG) batem com os do TCGA")
+    # somente tumores primários (RT), 1 por doador: amostras RA herdariam o M do doador (revisão R2, C1/C3)
+    if "tissue_type" in me.columns:
+        me = me[me["tissue_type"] == "RT"]
+    if "submitted_donor_id" in me.columns:
+        me = me[~me["submitted_donor_id"].duplicated()]
     me = me[me[EXT_M_COL].isin(["M0", "M1"])]
     common = me.index.astype(str).intersection(Xe.index.astype(str))
     Xe.index, me.index = Xe.index.astype(str), me.index.astype(str)

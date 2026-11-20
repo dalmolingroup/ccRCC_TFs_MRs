@@ -151,17 +151,23 @@ reorder_callback <- function(hc, mat) {
 }
 
 
+# Figura 4B - 1 tumor primário (01) por paciente (501), como em todas as outras análises
+# (o objeto da rede inclui alíquotas extras do mesmo paciente; revisão R2, minor 1).
+# Agrupamento dos TFs como na Seção 2.4 (1 - Spearman, ligação média, k = 2).
+dif <- tcga_regact$dif
+dif <- dif[substr(rownames(dif), 14, 15) == "01", ]
+dif <- dif[!duplicated(substr(rownames(dif), 1, 12)), ]
+stopifnot(nrow(dif) == 501)
+d_rows <- as.dist(1 - cor(dif, method = "spearman"))
+
 tiff(filename = "~/Kidney/Figures/Boruta_Sign_Figures/Heatmap_Act_TCGA.tiff",
      res = 300, height = 1000, width = 3000)
-a <- pheatmap(t(tcga_regact$dif), 
-         main="TCGA cohort (n=505 samples)",
-         show_colnames = FALSE, annotation_legend = T, 
-         clustering_method = "ward.D2",
-         clustering_distance_rows = "manhattan",
-         clustering_distance_cols = "manhattan",
-         #clustering_callback = reorder_callback,   # <-- aqui
+a <- pheatmap(t(dif),
+         main = sprintf("TCGA-KIRC (n = %d tumours)", nrow(dif)),
+         show_colnames = FALSE, annotation_legend = TRUE,
+         cluster_rows = hclust(d_rows, method = "average"), cutree_rows = 2,
+         clustering_distance_cols = "manhattan", clustering_method = "ward.D2",   # colunas (tumores)
          annotation_row = annotation_row,
-         annotation_colors = list(cluster = c("C1" = "#1a9850", "C2" = "#542788")),
-         cutree_rows = 2,
-         color = my_colors, annotation_names_row = F)
+         annotation_colors = list(cluster = c("C1" = "#542788", "C2" = "#1a9850")),  # C1 roxo, C2 verde
+         color = my_colors, border_color = NA, annotation_names_row = FALSE)
 dev.off()
